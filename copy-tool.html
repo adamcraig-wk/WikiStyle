@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Confluence Component Generator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+	<style>
+		/* Base styles */
+		body {
+			margin: 0;
+			background-color: #f0f2f5;
+			font-family: 'Inter', sans-serif;
+			color: #172B4D;
+			padding-bottom: 40px;
+		}
+
+		.container {
+			max-width: 1200px;
+		}
+
+		h1, h2 {
+			font-weight: 700;
+		}
+		
+		h1 {
+			border-bottom: 1px solid #dcdfe4;
+			padding: 0px 0px 15px 0px;
+			margin-bottom: 20px;
+			color: #172B4D;
+		}
+
+		h2 {
+			margin-top: 30px;
+			margin-bottom: 15px;
+			font-size: 20px;
+			color: #42526E;
+		}
+
+		.instructions {
+			background-color: #ffffff;
+			padding: 20px;
+			border-radius: 8px;
+			margin-bottom: 30px;
+			border: 1px solid #dcdfe4;
+		}
+		
+		.component-section {
+			background-color: #ffffff;
+			padding: 20px;
+			border-radius: 8px;
+			margin-bottom: 20px;
+			border: 1px solid #dcdfe4;
+		}
+
+		/* Palette styles */
+		.palette-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+			gap: 15px;
+		}
+
+		.palette {
+			height: 120px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			font-weight: 500;
+			color: white;
+			border-radius: 8px;
+			position: relative;
+			cursor: pointer;
+			transition: transform 0.2s ease, box-shadow 0.2s ease;
+			overflow: hidden;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+			border: 1px solid rgba(0,0,0,0.1);
+			padding: 10px;
+		}
+
+		.palette:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+		}
+		
+		.palette.light-bg {
+			color: #172B4D;
+		}
+		
+		.palette .hex-code {
+			margin-top: 8px;
+			font-size: 12px;
+		}
+
+		/* Color Definitions */
+		.bg-c-zesty-neue { background: #66CC66; }
+		.bg-c-link-blue { background: #0074E8; }
+		.bg-c-presentation-yellow { background: #FBAD17; }
+		.bg-c-purple-mountain { background: #8C4CBD; }
+		.bg-c-brick-red { background: #FF6633; }
+		.bg-c-morning-dew { background: #C0F3A7; }
+		.bg-c-foggy { background: #C5E2FF; }
+		.bg-c-plastic-cheese { background: #F9CB76; }
+		.bg-c-lavendery { background: #D5B1EB; }
+		.bg-c-just-peachy { background: #FFCC99; }
+		.bg-c-mr-toad { background: #3F9F3F; }
+		.bg-c-ectoplasm { background: #85DD85; }
+		.bg-c-poseidon { background: #0058AF; }
+		.bg-c-robins-egg { background: #7CBEFF; }
+		.bg-c-cheetah { background: #F89119; }
+		.bg-c-cool-ranch { background: #F8BD4F; }
+		.bg-c-purple-people-eater { background: #663399; }
+		.bg-c-witch-cape { background: #9966CC; }
+		.bg-c-five-alarm-chili { background: #DE2800; }
+		.bg-c-salmon { background: #FF9966; }
+		.bg-c-forest { background: #104810; }
+		.bg-c-post-box { background: #003366; }
+		.bg-c-squashy { background: #D76C1F; }
+		.bg-c-california-raisins { background: #3E1367; }
+		.bg-c-paprika { background: #8A1900; }
+		.bg-c-void { background: #0E0E0E; }
+		.bg-c-dark-matter { background: #232323; }
+		.bg-c-steel { background: #333333; }
+		.bg-c-storm-cloud { background: #666666; }
+		.bg-c-stainless { background: #B2B2B2; }
+		.bg-c-ethereal { background: #D8D8D8; }
+		.bg-c-silver-diva { background: #EBEBEB; }
+		.bg-c-warm-light { background: #FCF4E8; }
+		.bg-c-paper { background: #FFFFFF; border: 1px solid #ddd;}
+
+
+		/* Animation for "Copied!" message */
+		.copied {
+			font-family: 'Inter', sans-serif;
+			font-weight: 500;
+			position: absolute;
+			background: #fff;
+			border-radius: 20px;
+			padding: 8px 16px;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0);
+			color: #333;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+			opacity: 0;
+			white-space: nowrap;
+		}
+
+		.copiedEffect {
+			animation: copiedDrop 0.8s ease-out;
+		}
+
+		@keyframes copiedDrop {
+			0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+			20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+			50% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+			100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>Confluence Component Generator</h1>
+
+		<div class="instructions">
+			<p>Click on any component style below to copy its full Confluence source code to your clipboard. You can then paste it directly into the Confluence source editor.</p>
+		</div>
+
+		<!-- Primary Palette Section -->
+		<div class="component-section">
+			<h2>Primary Palette (HEX)</h2>
+			<div class="palette-grid">
+				<div class="palette hex-item bg-c-zesty-neue" data-clipboard-text="#66CC66">Zesty Neue <span class="hex-code">#66CC66</span></div>
+				<div class="palette hex-item bg-c-link-blue" data-clipboard-text="#0074E8">Link Blue <span class="hex-code">#0074E8</span></div>
+				<div class="palette hex-item bg-c-presentation-yellow" data-clipboard-text="#FBAD17">Presentation Yellow <span class="hex-code">#FBAD17</span></div>
+				<div class="palette hex-item bg-c-purple-mountain" data-clipboard-text="#8C4CBD">Purple Mountain <span class="hex-code">#8C4CBD</span></div>
+				<div class="palette hex-item bg-c-brick-red" data-clipboard-text="#FF6633">Brick Red <span class="hex-code">#FF6633</span></div>
+			</div>
+		</div>
+
+		<!-- Secondary Palette Section -->
+		<div class="component-section">
+			<h2>Secondary Palette (HEX)</h2>
+			<div class="palette-grid" style="grid-template-columns: repeat(5, 1fr);">
+				<div class="palette hex-item bg-c-morning-dew light-bg" data-clipboard-text="#C0F3A7">Morning Dew <span class="hex-code">#C0F3A7</span></div>
+				<div class="palette hex-item bg-c-foggy light-bg" data-clipboard-text="#C5E2FF">Foggy <span class="hex-code">#C5E2FF</span></div>
+				<div class="palette hex-item bg-c-plastic-cheese light-bg" data-clipboard-text="#F9CB76">Plastic Cheese <span class="hex-code">#F9CB76</span></div>
+				<div class="palette hex-item bg-c-lavendery light-bg" data-clipboard-text="#D5B1EB">Lavendery <span class="hex-code">#D5B1EB</span></div>
+				<div class="palette hex-item bg-c-just-peachy light-bg" data-clipboard-text="#FFCC99">Just Peachy <span class="hex-code">#FFCC99</span></div>
+				<div class="palette hex-item bg-c-ectoplasm light-bg" data-clipboard-text="#85DD85">Ectoplasm <span class="hex-code">#85DD85</span></div>
+				<div class="palette hex-item bg-c-robins-egg light-bg" data-clipboard-text="#7CBEFF">Robin's Egg <span class="hex-code">#7CBEFF</span></div>
+				<div class="palette hex-item bg-c-cool-ranch light-bg" data-clipboard-text="#F8BD4F">Cool Ranch <span class="hex-code">#F8BD4F</span></div>
+				<div class="palette hex-item bg-c-witch-cape" data-clipboard-text="#9966CC">Witch Cape <span class="hex-code">#9966CC</span></div>
+				<div class="palette hex-item bg-c-salmon light-bg" data-clipboard-text="#FF9966">Salmon <span class="hex-code">#FF9966</span></div>
+				<div class="palette hex-item bg-c-mr-toad" data-clipboard-text="#3F9F3F">Mr. Toad <span class="hex-code">#3F9F3F</span></div>
+				<div class="palette hex-item bg-c-poseidon" data-clipboard-text="#0058AF">Poseidon <span class="hex-code">#0058AF</span></div>
+				<div class="palette hex-item bg-c-cheetah" data-clipboard-text="#F89119">Cheetah <span class="hex-code">#F89119</span></div>
+				<div class="palette hex-item bg-c-purple-people-eater" data-clipboard-text="#663399">Purple People Eater <span class="hex-code">#663399</span></div>
+				<div class="palette hex-item bg-c-five-alarm-chili" data-clipboard-text="#DE2800">Five Alarm Chili <span class="hex-code">#DE2800</span></div>
+				<div class="palette hex-item bg-c-forest" data-clipboard-text="#104810">Forest <span class="hex-code">#104810</span></div>
+				<div class="palette hex-item bg-c-post-box" data-clipboard-text="#003366">Post Box <span class="hex-code">#003366</span></div>
+				<div class="palette hex-item bg-c-squashy" data-clipboard-text="#D76C1F">Squashy <span class="hex-code">#D76C1F</span></div>
+				<div class="palette hex-item bg-c-california-raisins" data-clipboard-text="#3E1367">California Raisins <span class="hex-code">#3E1367</span></div>
+				<div class="palette hex-item bg-c-paprika" data-clipboard-text="#8A1900">Paprika <span class="hex-code">#8A1900</span></div>
+			</div>
+		</div>
+
+		<!-- Neutral Palette Section -->
+		<div class="component-section">
+			<h2>Neutral Palette (HEX)</h2>
+			<div class="palette-grid" style="grid-template-columns: repeat(3, 1fr);">
+				<div class="palette hex-item bg-c-void" data-clipboard-text="#0E0E0E">Void <span class="hex-code">#0E0E0E</span></div>
+				<div class="palette hex-item bg-c-dark-matter" data-clipboard-text="#232323">Dark Matter <span class="hex-code">#232323</span></div>
+				<div class="palette hex-item bg-c-steel" data-clipboard-text="#333333">Steel <span class="hex-code">#333333</span></div>
+				<div class="palette hex-item bg-c-storm-cloud" data-clipboard-text="#666666">Storm Cloud <span class="hex-code">#666666</span></div>
+				<div class="palette hex-item bg-c-stainless light-bg" data-clipboard-text="#B2B2B2">Stainless <span class="hex-code">#B2B2B2</span></div>
+				<div class="palette hex-item bg-c-ethereal light-bg" data-clipboard-text="#D8D8D8">Ethereal <span class="hex-code">#D8D8D8</span></div>
+				<div class="palette hex-item bg-c-silver-diva light-bg" data-clipboard-text="#EBEBEB">Silver Diva <span class="hex-code">#EBEBEB</span></div>
+				<div class="palette hex-item bg-c-warm-light light-bg" data-clipboard-text="#FCF4E8">Warm Light <span class="hex-code">#FCF4E8</span></div>
+				<div class="palette hex-item bg-c-paper light-bg" data-clipboard-text="#FFFFFF">Paper <span class="hex-code">#FFFFFF</span></div>
+			</div>
+		</div>
+
+		<!-- Tabs by Color Section -->
+		<div class="component-section">
+			<h2>Tabs by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue|titleBGColor=#0074E8|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue Tabs</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#D5B1EB|borderColor=#A14EBF|borderStyle=solid|borderWidth=3|title=Purple|titleBGColor=#A14EBF|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8c4cbd|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Purple Tabs</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green|titleBGColor=#66CC66|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Green Tabs</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow|titleBGColor=#FBAD17|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Yellow Tabs</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange|titleBGColor=#FF6633|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Orange Tabs</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Warm|titleBGColor=#0074E8|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Warm Tabs</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Warm|titleBGColor=#333333|titleColor=#FFFFFF" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333|borderStyle=solid|borderWidth=1" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tabs" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 1.</em></p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-tab" data-macro-parameters="title=Title" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p><em>Content for tab 2.</em></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Warm Tabs</div>
+			</div>
+		</div>
+		
+		<!-- Basic Panels by Color Section -->
+		<div class="component-section">
+			<h2>Basic Panels by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue- Top level panel - Change this title|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Blue Basic</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#d5b1eb|borderColor=#8c4cbd|borderStyle=solid|borderWidth=3|title=Purple- Top level panel - Change this title|titleBGColor=#8c4cbd|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8c4cbd" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Purple Basic</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green- Top level panel - Change this title|titleBGColor=#66CC66|titleColor=white" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Green Basic</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow- Top level panel - Change this title|titleBGColor=#FBAD17|titleColor=white" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Yellow Basic</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange- Top level panel - Change this title|titleBGColor=#FF6633|titleColor=white" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Orange Basic</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Natural- Top level panel - Change this title|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Natural Basic</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Natural- Top level panel - Change this title|titleBGColor=#333333|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Internal panel to add content to</p></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Natural Basic</div>
+			</div>
+		</div>
+
+		<!-- Buttons by Color Section -->
+		<div class="component-section">
+			<h2>Buttons by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue- Create buttons...|titleBGColor=#0074E8|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Blue Buttons</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#D5B1EB|borderColor=#8C4CBD|borderStyle=solid|borderWidth=3|title=Purple- Create buttons...|titleBGColor=#8C4CBD|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8C4CBD|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Purple Buttons</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green- Create buttons...|titleBGColor=#66CC66|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Green Buttons</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow- Create buttons...|titleBGColor=#FBAD17|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Yellow Buttons</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange- Create buttons...|titleBGColor=#FF6633|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Orange Buttons</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Natural- Create buttons...|titleBGColor=#0074E8|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Natural Buttons</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Natural- Create buttons...|titleBGColor=#333333|titleColor=#ffffff" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333|borderWidth=3" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><h3 style="text-align: center;"><a href="https://www.example.com">Button 1</a></h3></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Natural Buttons</div>
+			</div>
+		</div>
+
+		<!-- Basic Expand by Color Section -->
+		<div class="component-section">
+			<h2>Basic Expand by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue Expand</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#D5B1EB|borderColor=#8C4CBD|borderStyle=solid|borderWidth=3|title=Purple- Top level panel...|titleBGColor=#8C4CBD|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8C4CBD" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Purple Expand</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green- Top level panel...|titleBGColor=#66CC66|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Green Expand</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow- Top level panel...|titleBGColor=#FBAD17|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Yellow Expand</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange- Top level panel...|titleBGColor=#FF6633|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Orange Expand</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Natural- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Natural Expand</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Natural- Top level panel...|titleBGColor=#333333|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description/intro</p><table class="wysiwyg-macro" data-macro-name="expand" data-macro-parameters="title=Title here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content inside expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Natural Expand</div>
+			</div>
+		</div>
+
+		<!-- UI Expand by Color Section -->
+		<div class="component-section">
+			<h2>UI Expand by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue UI Expand</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#D5B1EB|borderColor=#8c4cbd|borderStyle=solid|borderWidth=3|title=Purple- Top level panel...|titleBGColor=#8c4cbd|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8c4cbd" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#8c4cbd" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Purple UI Expand</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green- Top level panel...|titleBGColor=#66CC66|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#66CC66" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Green UI Expand</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow- Top level panel...|titleBGColor=#FBAD17|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FBAD17" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Yellow UI Expand</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange- Top level panel...|titleBGColor=#FF6633|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#FF6633" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Orange UI Expand</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Natural- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Natural UI Expand</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Natural- Top level panel...|titleBGColor=#333333|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#ffffff|borderColor=#333333" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-expand" data-macro-parameters="title=Title Here" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Content for expand.</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Natural UI Expand</div>
+			</div>
+		</div>
+
+		<!-- Steps by Color Section -->
+		<div class="component-section">
+			<h2>Steps by Color</h2>
+			<div class="palette-grid">
+				<div class="palette panel-item bg-c-foggy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C5E2FF|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue Steps</div>
+				<div class="palette panel-item bg-c-lavendery light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#d5b1eb|borderColor=#8c4cbd|borderStyle=solid|borderWidth=3|title=Purple- Top level panel...|titleBGColor=#8c4cbd|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#8c4cbd" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Purple Steps</div>
+				<div class="palette panel-item bg-c-morning-dew light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#C0F3A7|borderColor=#66CC66|borderStyle=solid|borderWidth=3|title=Green- Top level panel...|titleBGColor=#66CC66|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#66CC66" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Green Steps</div>
+				<div class="palette panel-item bg-c-plastic-cheese light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#F9CB76|borderColor=#FBAD17|borderStyle=solid|borderWidth=3|title=Yellow- Top level panel...|titleBGColor=#FBAD17|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#FBAD17" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Yellow Steps</div>
+				<div class="palette panel-item bg-c-just-peachy light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFCC99|borderColor=#FF6633|borderStyle=solid|borderWidth=3|title=Orange- Top level panel...|titleBGColor=#FF6633|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#FF6633" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Orange Steps</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#0074E8|borderStyle=solid|borderWidth=3|title=Blue/Natural- Top level panel...|titleBGColor=#0074E8|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#0074E8" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Blue/Natural Steps</div>
+				<div class="palette panel-item bg-c-warm-light light-bg" data-source-html='<!-- x-tinymce/html --><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FCF4E8|borderColor=#333333|borderStyle=solid|borderWidth=3|title=Steel/Natural- Top level panel...|titleBGColor=#333333|titleColor=White" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="panel" data-macro-parameters="bgColor=#FFFFFF|borderColor=#333333" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Description</p><table class="wysiwyg-macro" data-macro-name="ui-steps" data-macro-parameters="size=small" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table><table class="wysiwyg-macro" data-macro-name="ui-step" data-macro-schema-version="1"><tbody style="vertical-align: top;"><tr><td class="wysiwyg-macro-body"><p>Details Here</p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>'>Steel/Natural Steps</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js'></script>
+	<script id="rendered-js">
+		$(document).ready(function() {
+			/**
+			 * Copies a string of HTML to the clipboard using the document.execCommand method,
+			 * which is reliable in iframe environments.
+			 * @param {string} html - The HTML string to copy.
+			 */
+			function copyHtmlToClipboard(html) {
+				const container = document.createElement('div');
+				// The StartFragment and EndFragment comments are crucial for many rich text editors
+				container.innerHTML = `<!--StartFragment-->${html}<!--EndFragment-->`;
+
+				// The container must be in the DOM to be selectable.
+				container.style.position = 'fixed';
+				container.style.opacity = 0;
+				container.style.pointerEvents = 'none';
+				container.style.top = '-9999px';
+				document.body.appendChild(container);
+
+				window.getSelection().removeAllRanges();
+				const range = document.createRange();
+				range.selectNode(container);
+				window.getSelection().addRange(range);
+
+				try {
+					const successful = document.execCommand('copy');
+					if (!successful) {
+						// This message is for debugging and won't be shown to the user.
+						console.error('Copy command was unsuccessful');
+					}
+				} catch (err) {
+					// This message is for debugging and won't be shown to the user.
+					console.error('Failed to copy HTML: ', err);
+				}
+
+				// Cleanup
+				window.getSelection().removeAllRanges();
+				document.body.removeChild(container);
+			}
+
+			/**
+			 * Shows a "Copied!" animation on a given element.
+			 * @param {jQuery} $element - The jQuery object to apply the animation to.
+			 */
+			function showCopiedAnimation($element) {
+				$(".copied").remove();
+				$element.prepend("<span class='copied'>Copied!</span>");
+				$element.find(".copied").addClass("copiedEffect");
+			}
+
+			// Initialize clipboard.js for simple HEX code copying
+			var hexClipboard = new ClipboardJS('.hex-item');
+			hexClipboard.on('success', function(e) {
+				showCopiedAnimation($(e.trigger));
+				e.clearSelection();
+			});
+			hexClipboard.on('error', function(e) {
+				console.error('Failed to copy HEX code:', e);
+			});
+
+			// Custom click handler for the complex panel items
+			$('.panel-item').on('click', function() {
+				const sourceHtml = $(this).data('source-html');
+				if (sourceHtml) {
+					copyHtmlToClipboard(sourceHtml);
+					showCopiedAnimation($(this));
+				} else {
+					console.error('No source HTML found for this component.');
+				}
+			});
+		});
+	</script>
+</body>
+</html>
